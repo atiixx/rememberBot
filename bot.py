@@ -12,7 +12,8 @@
 import os
 import datetime
 import pickle
-
+import time
+import remember
 
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -54,6 +55,10 @@ async def show_ass(ctx):
         assignementString += f'{counter}: \'{i[0]}\' ist fällig bis zum {i[1]} \n'
         counter += 1
     await test_channel.send(assignementString)
+    await test_channel.send("Now we wait to see if checktime works..")
+    time.sleep(2)
+    await remember.check_time()
+    
 
 @bot.command(name='del', help='Löscht bestimmtes Assignement !del <index> - Um den Index zu sehen !show')
 async def delete_ass(ctx, index):
