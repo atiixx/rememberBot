@@ -25,6 +25,7 @@ GUILD = os.getenv('DISCORD_GUILD')
 
 
 bot = commands.Bot(command_prefix='!')
+test_channel = bot.get_channel(918127437068533770)
 
 @bot.command(name='neu', help='Legt ein neues Assignement an !neu <TT-MM-JJJJ> <HH:MM> <Text>')
 async def add_new(ctx, date_text, time_text, *texte):
@@ -46,7 +47,7 @@ async def add_new(ctx, date_text, time_text, *texte):
 @bot.command(name='show', help='Zeigt alle Asses')
 async def show_ass(ctx):
     await load_list() 
-    test_channel = bot.get_channel(918127437068533770)
+    
     assignementString = ''
     counter = 1
     for i in assignements:
