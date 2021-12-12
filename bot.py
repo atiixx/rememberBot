@@ -64,9 +64,7 @@ async def show_ass(ctx):
             assignementString += f'{counter} - \'{i[0]}\' ist fällig bis zum {i[1].strftime("%d-%m-%Y %H:%M")} Uhr \n'
             counter += 1
         await test_channel.send(assignementString)
-        await test_channel.send("Now we wait to see if checktime works..")
-        time.sleep(2)
-        await send_remember()
+
     except:
         await bot.get_channel(919595793646776371).send("Alles erledigt! Keine Assignements übrig :)")
 
