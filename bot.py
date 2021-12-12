@@ -29,6 +29,10 @@ bot = commands.Bot(command_prefix='!')
 @bot.command(name='neu', help='Legt ein neues Assignement an\n!neu <TT-MM-JJJJ> <HH:MM> <Text>')
 async def add_new(ctx, date_text, time_text, *texte):
     """Added ein neues Assignement zur Liste"""
+
+    if date_text.author.bot:
+        return
+
     try:
         day, month, year = map(int, date_text.split('-'))
         hour, minute = map(int, time_text.split(':'))
@@ -55,6 +59,9 @@ async def add_new(ctx, date_text, time_text, *texte):
 
 @bot.command(name='show', help='Zeigt alle Asses')
 async def show_ass(ctx):
+
+    
+
     try:
         await load_list() 
         test_channel = bot.get_channel(919595793646776371)
@@ -72,6 +79,10 @@ async def show_ass(ctx):
 @bot.command(name='del', help='Löscht bestimmtes Assignement !del <index> - Um den Index zu sehen !show')
 async def delete_ass(ctx, index):
     #TO-DO: Mehrere löschen zB !del 2-4 (löscht 2,3 und 4)
+
+    if index.author.bot:
+        return
+
     try:
         await load_list()
         del assignements[int(index)-1]
