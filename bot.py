@@ -46,7 +46,6 @@ async def add_ass(ctx, date_text, time_text, *texte):
         items = [text.strip(), date_and_time]
         assignements.append(items)
         await save_list()
-        await send_remember()
         await bot.get_channel(PROD_CHANNEL).send("Ass hinzugefügt")
         #await bot.get_channel(TEST_CHANNEL).send("Ass hinzugefügt")
     except ValueError:
