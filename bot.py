@@ -21,7 +21,7 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
 TEST_CHANNEL = 918127437068533770
-PROD_CHANNEL = 919595793646776371
+PROD_CHANNEL = 943960532875104266
 FIRSTREMINDER_DAYS = 5
 SECONDREMINDER_DAYS = 2
 LASTREMINDER_DAYS = 1
@@ -47,9 +47,11 @@ async def add_ass(ctx, date_text, time_text, *texte):
         assignements.append(items)
         await save_list()
         await send_remember()
-        await bot.get_channel(TEST_CHANNEL).send("Ass hinzugefügt")
+        await bot.get_channel(PROD_CHANNEL).send("Ass hinzugefügt")
+        #await bot.get_channel(TEST_CHANNEL).send("Ass hinzugefügt")
     except ValueError:
-        await bot.get_channel(TEST_CHANNEL).send("Datum oder Datumsformat ungültig. Format: dd-mm-yy hh:mm")
+        await bot.get_channel(PROD_CHANNEL).send("Datum oder Datumsformat ungültig. Format: dd-mm-yy hh:mm")
+        #await bot.get_channel(TEST_CHANNEL).send("Datum oder Datumsformat ungültig. Format: dd-mm-yy hh:mm")
 
 
 
@@ -58,14 +60,16 @@ async def show_ass(ctx):
         if(assignements):
             await load_list()
         else:
-             await bot.get_channel(TEST_CHANNEL).send("Alles erledigt :)")
-             return ""
+            await bot.get_channel(PROD_CHANNEL).send("Alles erledigt :)")
+            #await bot.get_channel(TEST_CHANNEL).send("Alles erledigt :)")
+            return ""
         assignementString = ''
         counter = 1
         for i in assignements:
             assignementString += f'{counter} - \'{i[0]}\' ist fällig bis zum {i[1].strftime("%d-%m-%Y %H:%M")} Uhr\n'
             counter += 1
-        await bot.get_channel(TEST_CHANNEL).send(assignementString)
+        await bot.get_channel(PROD_CHANNEL).send(assignementString)
+        #await bot.get_channel(TEST_CHANNEL).send(assignementString)
 
 
 @bot.command(name='del', help='Löscht bestimmtes Assignement !del <index> - Um den Index zu sehen !show')
@@ -76,11 +80,13 @@ async def delete_ass(ctx, index):
    #return
     try:
         await load_list()
-        await bot.get_channel(TEST_CHANNEL).send(f"Assignement \"{assignements[int(index)-1][0]}\" erfolgreich gelöscht.")
+        await bot.get_channel(PROD_CHANNEL).send(f"Assignement \"{assignements[int(index)-1][0]}\" erfolgreich gelöscht.")
+        #await bot.get_channel(TEST_CHANNEL).send(f"Assignement \"{assignements[int(index)-1][0]}\" erfolgreich gelöscht.")
         del assignements[int(index)-1]
         await save_list()
     except IndexError:
-        await bot.get_channel(TEST_CHANNEL).send(f"Es gibt kein Assignement mit der Nummer {index}")
+        await bot.get_channel(PROD_CHANNEL).send(f"Es gibt kein Assignement mit der Nummer {index}")
+        #await bot.get_channel(TEST_CHANNEL).send(f"Es gibt kein Assignement mit der Nummer {index}")
 
 
 
@@ -90,7 +96,8 @@ async def send_remember():
     else:
         print("Keine Reminder geschickt.")
         return ""
-    channel = bot.get_channel(TEST_CHANNEL)
+    #channel = bot.get_channel(TEST_CHANNEL)
+    channel = bot.get_channel(PROD_CHANNEL)
     now = datetime.today()
     for i in range(len(assignements)):
         if assignements[i][1] < now:
