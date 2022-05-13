@@ -2,11 +2,9 @@
 
 #Bot um Erinnerung für die HS einzustellen
 #author: Jonas Hauenstein
-#Date last edited: 12.12.2021
+#Date last edited: 13.05.2022
 #To-Do: 
 #Mehrere Assignements löschen
-#Keine Commands über PM / Nur Commands über bestimmten channel
-#Missing Arguments error catchen
 # " wird bei neu nicht erkannt
 # Riesen files und texte als Argument
 #Logger hinzufügen
@@ -17,14 +15,14 @@ import os
 import pickle
 
 from datetime import datetime, timedelta
-from discord.ext import commands
+from discord.ext import commands, tasks
 from dotenv import load_dotenv
 
 assignements = list()
+remember_channel = None
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-GUILD = os.getenv('DISCORD_GUILD')
 
 bot = commands.Bot(command_prefix='!')
 
@@ -55,13 +53,12 @@ async def add_ass(ctx, date_text, time_text, *texteingabe):
 
 @bot.command(name='show', help='Zeigt alle Asses')
 async def show_ass(ctx):
-        print("ist er hier?")
         if assignements:
-            print("er kommt hier reiiin")
             await load_list()
         else:
             await ctx.send("Alles erledigt :)")
             return ""
+        
         assignementString = ''
         counter = 1
         for i in assignements:
@@ -82,27 +79,36 @@ async def delete_ass(ctx, index):
         await ctx.send(f"Es gibt kein Assignement mit der Nummer {index}")
 
 
+@bot.command(name='register', help='Auf dem ausgeführten Channel kommen die Erinnerungen')
+async def set_remember_channel(ctx):
+    global remember_channel
+    remember_channel = ctx.channel
 
+
+
+@tasks.loop(hours=24.0)
 async def send_remember():
+    if (remember_channel == None):
+        return ""
+
     if assignements:
         await load_list()
     else:
         return ""
+
     now = datetime.today()
     for i in range(len(assignements)):
         if assignements[i][1] < now:
             await load_list()
-            await ctx.send(f'\"{assignements[i][0]}\" vorbei. Wird gelöscht...')
+            await remember_channel.send(f'\"{assignements[i][0]}\" vorbei. Wird gelöscht...')
             del assignements[i]
             await save_list()
-        elif now > assignements[i][1] - timedelta(days=5) and now < assignements[i][1] - timedelta(days = 2):
-            await ctx.send(f'\"{assignements[i][0]}\" in unter 5 Tagen fällig!!')
-        elif now > assignements[i][1] - timedelta(days=2) and now < assignements[i][1] - timedelta(days = 1):
-            await ctx.send(f'\"{assignements[i][0]}\" in unter 2 Tagen fällig!!') 
+        elif now >= assignements[i][1] - timedelta(days=5) and now < assignements[i][1] - timedelta(days = 2):
+            await remember_channel.send(f'\"{assignements[i][0]}\" in unter 5 Tagen fällig!!')
+        elif now >= assignements[i][1] - timedelta(days=2) and now < assignements[i][1] - timedelta(days = 1):
+            await remember_channel.send(f'\"{assignements[i][0]}\" in unter 2 Tagen fällig!!') 
         elif now >= assignements[i][1]- timedelta(days=1):
-            await ctx.send(f'\"{assignements[i][0]}\" !!Abgabe morgen fällig!!')    
-
-
+            await remember_channel.send(f'\"{assignements[i][0]}\" !!Abgabe morgen fällig!!')    
 
 
 #Helping Methods
@@ -111,10 +117,6 @@ async def send_remember():
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("Chad Knauber brauch mehr Infos! !help \"command\" für mehr Infos!")
-
-@bot.before_invoke(show_ass)
-async def prepare_list(ctx):
-    await load_list()
 
 #File handling
 async def save_list():
@@ -125,4 +127,5 @@ async def load_list():
     global assignements 
     assignements = pickle.load(open('assignement_list.obj', 'rb'))
 
+send_remember.start()
 bot.run(TOKEN)
