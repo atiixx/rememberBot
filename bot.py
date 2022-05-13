@@ -62,7 +62,7 @@ async def show_ass(ctx):
         assignementString = ''
         counter = 1
         for i in assignements:
-            assignementString += f'{counter} - \'{i[0]}\' ---- {i[1].strftime("%d-%m-%Y %H:%M")} Uhr\n'
+            assignementString += f'{counter} - \'{i[0]}\' {i[1].strftime("%d-%m-%Y %H:%M")} Uhr\n'
             counter += 1
         await ctx.send(assignementString)
 
