@@ -5,8 +5,6 @@
 #Date last edited: 13.05.2022
 #To-Do: 
 #Mehrere Assignements löschen
-# " wird bei neu nicht erkannt
-# Riesen files und texte als Argument
 #Logger hinzufügen
 #pickle save machen
 #checken ob remote code execution verhindert wird
@@ -22,16 +20,21 @@ assignements = list()
 remember_channel = None
 
 load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
+#TOKEN = os.getenv('DISCORD_TOKEN')
+TOKEN = os.getenv('TEST_TOKEN')
 
 bot = commands.Bot(command_prefix='!')
 
-@bot.command(name='neu', help='Legt ein neues Assignement an\n!neu <TT-MM-JJ> <HH:MM> <Text>')
+@bot.command(name='new', help='Legt ein neues Assignement an\n!neu <TT-MM-JJ> <HH:MM> <Text>')
 async def add_ass(ctx, date_text, time_text, *texteingabe):
     try:
         date_time_string = date_text + " " + time_text
 
-        date_and_time = datetime.strptime(date_time_string, '%d-%m-%y %H:%M')
+        for fmt in ('%d-%m-%Y %H:%M', '%d-%m-%y %H:%M', '%d.%m.%Y %H:%M', '%d.%m.%y %H:%M'):
+            try:
+                date_and_time = datetime.strptime(date_time_string, fmt)
+            except ValueError:
+                pass
 
         texte = " ".join(texteingabe)
 
@@ -48,7 +51,7 @@ async def add_ass(ctx, date_text, time_text, *texteingabe):
         await save_list()
         await ctx.send("Chad Knauber sagt: Geiler Ass. Ist hinzugefügt.")
     except ValueError:
-        await ctx.send("Datum oder Datumsformat ungültig. Format: dd-mm-yy hh:mm")
+        await ctx.send("Datum oder Datumsformat ungültig. Format: Datum hh:mm Assignementtext")
 
 
 @bot.command(name='show', help='Zeigt alle Asses')
@@ -69,12 +72,25 @@ async def show_ass(ctx):
 
 @bot.command(name='del', help='Löscht bestimmtes Assignement !del <index> - Um den Index zu sehen !show')
 async def delete_ass(ctx, index):
-    #TO-DO: Mehrere löschen zB !del 2-4 (löscht 2,3 und 4)
     try:
-        await load_list()
-        await ctx.send(f"Assignement \"{assignements[int(index)-1][0]}\" erfolgreich gelöscht.")
-        del assignements[int(index)-1]
-        await save_list()
+        if('-' in index):
+            rangeinput = index.split('-')
+            try:
+                val1 = int(rangeinput[0])
+                val2 = int(rangeinput[1])
+            except ValueError:
+                await ctx.send(f"Eingetragener Index ungültig.")
+            await load_list()
+            del assignements[val1-1:val2]
+            await ctx.send(f"Assignements {val1} bis {val2} erfolgreich gelöscht.")
+            await save_list()
+        elif(index.isdigit()):
+            await load_list()
+            del assignements[int(index)-1]
+            await ctx.send(f"Assignement \"{assignements[int(index)-1][0]}\" erfolgreich gelöscht.")
+            await save_list()
+        else:
+             await ctx.send(f"Eingetragener Index ungültig.")
     except IndexError:
         await ctx.send(f"Es gibt kein Assignement mit der Nummer {index}")
 
